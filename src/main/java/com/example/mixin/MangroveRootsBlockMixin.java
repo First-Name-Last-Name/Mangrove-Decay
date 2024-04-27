@@ -3,6 +3,9 @@ package com.example.mixin;
 
 import com.example.MangroveDecayMod;
 import net.minecraft.block.*;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
@@ -14,6 +17,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -104,6 +108,17 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
     @Inject(method = "appendProperties", at = @At("TAIL"))
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
         builder.add(DISTANCE, PERSISTENT);
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
+        BlockState blockState = this.getDefaultState().with(PERSISTENT, true).with(MangroveRootsBlock.WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+        return updateDistanceFromLogs(blockState, ctx.getWorld(), ctx.getBlockPos());
     }
 
     static {
