@@ -3,9 +3,6 @@ package com.example.mixin;
 
 import com.example.MangroveDecayMod;
 import net.minecraft.block.*;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
@@ -66,13 +63,11 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
     }
 
     @Inject(method = "getStateForNeighborUpdate", at = @At("TAIL"))
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, CallbackInfoReturnable<BlockState> info) {
+    protected void getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, CallbackInfoReturnable<BlockState> info) {
         int i = getDistanceFromLog(neighborState) + 1;
         if (i != 1 || state.get(DISTANCE) != i) {
             world.scheduleBlockTick(pos, this, 1);
         }
-
-        return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
     }
 
     @Unique
@@ -109,13 +104,6 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
     @Inject(method = "appendProperties", at = @At("TAIL"))
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
         builder.add(DISTANCE, PERSISTENT);
-    }
-
-    @Inject(method = "getPlacementState", at = @At("TAIL"))
-    public BlockState getPlacementState(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        BlockState blockState = this.getDefaultState().with(PERSISTENT, true).with(MangroveRootsBlock.WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
-        return updateDistanceFromLogs(blockState, ctx.getWorld(), ctx.getBlockPos());
     }
 
     static {
