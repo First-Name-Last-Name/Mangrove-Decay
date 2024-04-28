@@ -111,10 +111,11 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
     }
 
     /**
-     * @author
-     * @reason
+     * @author First-Name-Last-Name
+     * @reason Necessary replacement of return value; no other content needed from original method
      */
     @Overwrite
+    @Nullable
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
         BlockState blockState = this.getDefaultState().with(PERSISTENT, true).with(MangroveRootsBlock.WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
