@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldAccess;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
@@ -42,13 +43,13 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
         this.setDefaultState(this.stateManager.getDefaultState().with(DISTANCE, MangroveDecayMod.DISTANCE).with(PERSISTENT, false).with(MangroveRootsBlock.WATERLOGGED, false));
     }
 
-    @Unique
-    protected boolean hasRandomTicks(BlockState state) {
+    @Override
+    public boolean hasRandomTicks(BlockState state) {
         return state.get(DISTANCE) == MangroveDecayMod.DISTANCE && !(Boolean)state.get(PERSISTENT);
     }
 
-    @Unique
-    protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    @Override
+    public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         if (this.shouldDecay(state)) {
             dropStacks(state, world, pos);
             world.removeBlock(pos, false);
@@ -61,8 +62,8 @@ public abstract class MangroveRootsBlockMixin extends Block implements Waterlogg
         return !(Boolean)state.get(PERSISTENT) && state.get(DISTANCE) == MangroveDecayMod.DISTANCE;
     }
 
-    @Unique
-    protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    @Override
+    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         world.setBlockState(pos, updateDistanceFromLogs(state, world, pos), 3);
     }
 
